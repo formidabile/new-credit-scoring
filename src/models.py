@@ -37,3 +37,33 @@ def cv_oof(model, X: pd.DataFrame, y: pd.Series, n_splits: int = 5):
     """Out-of-fold предсказания: каждая строка предсказана моделью, которая её не видела."""
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=RANDOM_STATE)
     return cross_val_predict(model, X, y, cv=skf, method="predict_proba", n_jobs=-1)[:, 1]
+
+
+def cv_auc(model, X: pd.DataFrame, y: pd.Series, n_splits: int = 5):
+    """ROC AUC по фолдам. Фиксированный random_state => во всех вариантах одни и те же фолды,
+    поэтому результаты разных наборов признаков можно сравнивать попарно."""
+    from sklearn.model_selection import cross_val_score
+
+    skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=RANDOM_STATE)
+    return cross_val_score(model, X, y, cv=skf, scoring="roc_auc")
+
+
+def to_lgbm(X: pd.DataFrame) -> pd.DataFrame:
+    """Строковые колонки -> dtype 'category', чтобы LightGBM кодировал их сам."""
+    X = X.copy()
+    for c in X.select_dtypes("object").columns:
+        X[c] = X[c].astype("category")
+    return X
+
+
+def make_lgbm(**overrides):
+    """LightGBM с разумными стартовыми параметрами (позже подберём через Optuna)."""
+    from lightgbm import LGBMClassifier
+
+    params = dict(
+        n_estimators=400, learning_rate=0.06, num_leaves=31,
+        colsample_bytree=0.5, subsample=0.8, subsample_freq=1,
+        random_state=RANDOM_STATE, verbose=-1, n_jobs=-1,
+    )
+    params.update(overrides)
+    return LGBMClassifier(**params)

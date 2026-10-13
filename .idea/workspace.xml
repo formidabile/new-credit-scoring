@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1be5f083-f6a4-4baf-a268-ecf84178a892" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/new-credit-scoring.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/new-credit-scoring.iml" afterDir="false" />
+    <list default="true" id="1be5f083-f6a4-4baf-a268-ecf84178a892" name="Changes" comment="basement completed and testing aggregates (no data)">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/03_aggregates.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/03_aggregates.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/features.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/models.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,9 +71,22 @@
       <option name="presentableId" value="Default" />
       <updated>1791805709201</updated>
     </task>
+    <task id="LOCAL-00001" summary="basement completed and testing aggregates (no data)">
+      <option name="closed" value="true" />
+      <created>1791806588599</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1791806588599</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="basement completed and testing aggregates (no data)" />
+    <option name="LAST_COMMIT_MESSAGE" value="basement completed and testing aggregates (no data)" />
   </component>
 </project>

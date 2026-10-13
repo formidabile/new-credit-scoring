@@ -190,11 +190,65 @@ def aggregate_previous(prev: pd.DataFrame) -> pd.DataFrame:
     return total.join([approved, refused, recent, last_feat], how="left")
 
 
+# ----------------------------------------------------- installments_payments
+def aggregate_installments(inst: pd.DataFrame) -> pd.DataFrame:
+    """Одна строка на SK_ID_CURR: платёжная дисциплина по прошлым кредитам.
+
+    DPD (days past due)  - на сколько дней просрочен платёж (0, если вовремя или раньше).
+    DBD (days before due) - на сколько дней раньше срока заплатили.
+    """
+    i = inst[[ID_COL, "SK_ID_PREV", "DAYS_INSTALMENT", "DAYS_ENTRY_PAYMENT",
+              "AMT_INSTALMENT", "AMT_PAYMENT"]].copy()
+
+    i["DPD"] = (i["DAYS_ENTRY_PAYMENT"] - i["DAYS_INSTALMENT"]).clip(lower=0)
+    i["DBD"] = (i["DAYS_INSTALMENT"] - i["DAYS_ENTRY_PAYMENT"]).clip(lower=0)
+    i["IS_LATE"] = (i["DPD"] > 0).astype("int8")
+    i["PAYMENT_DIFF"] = i["AMT_INSTALMENT"] - i["AMT_PAYMENT"]  # > 0 = недоплата
+    i["PAYMENT_RATIO"] = _safe_div(i["AMT_PAYMENT"], i["AMT_INSTALMENT"])
+    i["IS_UNDERPAID"] = (i["PAYMENT_DIFF"] > 0).astype("int8")
+
+    aggs = {
+        "SK_ID_PREV": ["nunique", "count"],
+        "DPD": ["mean", "max", "sum"],
+        "DBD": ["mean", "max"],
+        "IS_LATE": ["mean", "sum"],
+        "PAYMENT_DIFF": ["mean", "max", "sum"],
+        "PAYMENT_RATIO": ["mean", "min"],
+        "IS_UNDERPAID": ["mean", "sum"],
+    }
+    total = _flatten(i.groupby(ID_COL).agg(aggs), "INST_")
+    total = total.rename(columns={
+        "INST_SK_ID_PREV_COUNT": "INST_COUNT",
+        "INST_SK_ID_PREV_NUNIQUE": "INST_LOANS_NUNIQUE",
+    })
+
+    # недавнее поведение: последние полгода и год
+    windows = []
+    for days, tag in [(180, "LAST6M"), (365, "LAST1Y")]:
+        w = _flatten(
+            i[i["DAYS_INSTALMENT"] >= -days].groupby(ID_COL).agg({
+                "SK_ID_PREV": ["count"],
+                "DPD": ["mean", "max"],
+                "IS_LATE": ["mean", "sum"],
+                "PAYMENT_RATIO": ["mean"],
+                "IS_UNDERPAID": ["mean"],
+            }),
+            f"INST_{tag}_",
+        )
+        windows.append(w.rename(columns={f"INST_{tag}_SK_ID_PREV_COUNT": f"INST_{tag}_COUNT"}))
+
+    out = total.join(windows, how="left")
+    # динамика: стал ли клиент платить хуже, чем обычно
+    out["INST_LATE_TREND"] = out["INST_LAST1Y_IS_LATE_MEAN"] - out["INST_IS_LATE_MEAN"]
+    return out
+
+
 # --------------------------------------------------------------- сборка
 def build_dataset(
     app: pd.DataFrame,
     bureau: pd.DataFrame | None = None,
     prev: pd.DataFrame | None = None,
+    installments: pd.DataFrame | None = None,
     domain: bool = True,
 ) -> pd.DataFrame:
     """Основная таблица + агрегаты из связанных таблиц (left join по SK_ID_CURR)."""
@@ -205,12 +259,14 @@ def build_dataset(
         sources.append(("BUREAU", aggregate_bureau(bureau)))
     if prev is not None:
         sources.append(("PREV", aggregate_previous(prev)))
+    if installments is not None:
+        sources.append(("INST", aggregate_installments(installments)))
 
     for name, agg in sources:
         X = X.join(agg, on=ID_COL)
         X[f"HAS_{name}"] = X[ID_COL].isin(agg.index).astype(int)
         # у клиентов без истории счётчики и суммы = 0, а средние остаются NaN
-        fill_cols = [c for c in agg.columns if c.endswith(("_COUNT", "_SUM"))]
+        fill_cols = [c for c in agg.columns if c.endswith(("_COUNT", "_SUM", "_NUNIQUE"))]
         X[fill_cols] = X[fill_cols].fillna(0)
 
     if domain and bureau is not None:
