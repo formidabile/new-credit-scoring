@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1be5f083-f6a4-4baf-a268-ecf84178a892" name="Changes" comment="added random forest" />
+    <list default="true" id="1be5f083-f6a4-4baf-a268-ecf84178a892" name="Changes" comment="added tuning parameters">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -90,7 +93,15 @@
       <option name="project" value="LOCAL" />
       <updated>1791976915807</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="added tuning parameters">
+      <option name="closed" value="true" />
+      <created>1791984165001</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1791984165001</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -100,6 +111,7 @@
     <MESSAGE value="basement completed and testing aggregates (no data)" />
     <MESSAGE value="added installment processing" />
     <MESSAGE value="added random forest" />
-    <option name="LAST_COMMIT_MESSAGE" value="added random forest" />
+    <MESSAGE value="added tuning parameters" />
+    <option name="LAST_COMMIT_MESSAGE" value="added tuning parameters" />
   </component>
 </project>
