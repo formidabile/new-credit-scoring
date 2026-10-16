@@ -18,21 +18,28 @@ GROUPS: dict[str, str] = {
     "bureau_debt": "Высокая задолженность по кредитам в других банках",
     "bureau_recent": "Много недавно открытых кредитов в других банках",
     "bureau_active": "Большое число или сумма активных кредитов в других банках",
+    "bureau_volume": "Небольшой общий объём кредитов в других банках",
     "bureau_other": "Особенности кредитной истории в других банках",
     "prev_refused": "Частые отказы по предыдущим заявкам",
     "prev_count": "Много заявок на кредит за короткое время",
-    "prev_other": "Особенности истории предыдущих заявок",
+    "prev_terms": "Длительные сроки по прошлым кредитам",
+    "prev_history": "Короткая или недавняя история в Home Credit",
+    "prev_payments": "Небольшие платежи и первоначальные взносы по прошлым кредитам",
+    "prev_closing": "Сроки закрытия прошлых кредитов",
+    "prev_amounts": "Суммы и условия одобрения прошлых заявок",
+    "prev_other": "Прочие особенности прошлых заявок",
     "inst_underpaid": "Недоплаты по платежам в прошлых кредитах",
     "inst_late": "Просрочки платежей в прошлых кредитах",
     "enquiries": "Много запросов кредитной истории",
     "no_history": "Недостаточная кредитная история",
-    "loan_terms": "Высокая сумма или платёж по кредиту относительно дохода",
-    "income": "Недостаточный доход",
+    "loan_burden": "Высокий платёж и сумма кредита относительно дохода",
+    "credit_vs_goods": "Сумма кредита велика относительно стоимости товара",
+    "credit_term": "Срок погашения запрашиваемого кредита",
     "employment": "Стаж и характер занятости",
     "education": "Уровень образования",
     "housing": "Характеристики жилья",
     "assets": "Отсутствие имущества (авто, недвижимость)",
-    "contacts": "Давность смены документов и контактных данных",
+    "contacts": "Недавняя смена документа, телефона или регистрации",
     "contract": "Тип запрашиваемого кредита",
     # --- группы ниже клиенту не показываем ---
     "protected": "[защищённые признаки: возраст, пол, семья]",
@@ -46,30 +53,39 @@ EXCLUDED_GROUPS: set[str] = {"protected", "region", "social", "technical", "othe
 
 # Порядок важен: берётся первое совпадение.
 RULES: list[tuple[str, str]] = [
-    (r"^(AGE|DAYS_BIRTH|CODE_GENDER|NAME_FAMILY_STATUS|CNT_CHILDREN|CNT_FAM_MEMBERS|INCOME_PER_PERSON)$", "protected"),
+    # EMPLOYED_BIRTH_RATIO = стаж / возраст, поэтому несёт возраст
+    (r"^(AGE|DAYS_BIRTH|CODE_GENDER|NAME_FAMILY_STATUS|CNT_CHILDREN|CNT_FAM_MEMBERS|INCOME_PER_PERSON|EMPLOYED_BIRTH_RATIO)$", "protected"),
     (r"^(REGION_|REG_|LIVE_)", "region"),
     (r"_SOCIAL_CIRCLE$", "social"),
-    (r"^(WEEKDAY_APPR_PROCESS_START|HOUR_APPR_PROCESS_START|NAME_TYPE_SUITE)$", "technical"),
+    (r"^(WEEKDAY_APPR_PROCESS_START|HOUR_APPR_PROCESS_START|NAME_TYPE_SUITE|FLAG_DOCUMENT_\d+)$", "technical"),
     (r"^EXT_SOURCE", "ext_rating"),
     (r"^HAS_(BUREAU|PREV|INST)$", "no_history"),
     (r"^BUREAU_.*OVERDUE", "bureau_overdue"),
     (r"^BUREAU_.*DEBT", "bureau_debt"),
+    # общие суммы кредитов действуют в обратную сторону, чем суммы активных: больше история, ниже риск
+    (r"^BUREAU_AMT_CREDIT_SUM_(SUM|MEAN|MAX)$", "bureau_volume"),
     (r"^BUREAU_(LAST1Y_|DAYS_CREDIT_(MIN|MAX|MEAN)$)", "bureau_recent"),
-    (r"^BUREAU_(ACTIVE_|IS_ACTIVE|DAYS_CREDIT_ENDDATE|DAYS_CREDIT_UPDATE|AMT_CREDIT_SUM|CNT_CREDIT_PROLONG)", "bureau_active"),
+    (r"^BUREAU_(ACTIVE_|IS_ACTIVE|DAYS_CREDIT_ENDDATE|DAYS_CREDIT_UPDATE|CNT_CREDIT_PROLONG)", "bureau_active"),
     (r"^BUREAU_", "bureau_other"),
     (r"^PREV_.*REFUSED", "prev_refused"),
     (r"^PREV_(LAST1Y_COUNT|COUNT)$", "prev_count"),
+    (r"^PREV_.*CNT_PAYMENT", "prev_terms"),
+    (r"^PREV_.*DAYS_DECISION", "prev_history"),
+    (r"^PREV_.*(AMT_ANNUITY|AMT_DOWN_PAYMENT|RATE_DOWN_PAYMENT)", "prev_payments"),
+    (r"^PREV_.*(DAYS_LAST_DUE|DAYS_TERMINATION|DAYS_FIRST)", "prev_closing"),
+    (r"^PREV_.*(AMT_|APP_CREDIT_RATIO|ANNUITY_CREDIT_RATIO)", "prev_amounts"),
     (r"^PREV_", "prev_other"),
     (r"^INST_.*(UNDERPAID|PAYMENT_RATIO|PAYMENT_DIFF)", "inst_underpaid"),
     (r"^INST_", "inst_late"),
     (r"^AMT_REQ_CREDIT_BUREAU", "enquiries"),
-    (r"^(CREDIT_INCOME_RATIO|ANNUITY_INCOME_RATIO|AMT_ANNUITY|AMT_CREDIT|CREDIT_TERM|AMT_GOODS_PRICE|CREDIT_GOODS_RATIO)$", "loan_terms"),
-    (r"^AMT_INCOME_TOTAL$", "income"),
-    (r"^(DAYS_EMPLOYED|DAYS_EMPLOYED_ANOM|EMPLOYED_BIRTH_RATIO|ORGANIZATION_TYPE|OCCUPATION_TYPE|NAME_INCOME_TYPE|FLAG_EMP_PHONE|FLAG_WORK_PHONE)$", "employment"),
+    (r"^(CREDIT_INCOME_RATIO|ANNUITY_INCOME_RATIO|AMT_ANNUITY|AMT_CREDIT|AMT_INCOME_TOTAL)$", "loan_burden"),
+    (r"^(CREDIT_GOODS_RATIO|AMT_GOODS_PRICE)$", "credit_vs_goods"),
+    (r"^CREDIT_TERM$", "credit_term"),
+    (r"^(DAYS_EMPLOYED|DAYS_EMPLOYED_ANOM|ORGANIZATION_TYPE|OCCUPATION_TYPE|NAME_INCOME_TYPE|FLAG_EMP_PHONE|FLAG_WORK_PHONE)$", "employment"),
     (r"^NAME_EDUCATION_TYPE$", "education"),
     (r"(_AVG|_MODE|_MEDI)$|^(NAME_HOUSING_TYPE|HOUSING_NAN_CNT)$", "housing"),
     (r"^(FLAG_OWN_CAR|OWN_CAR_AGE|FLAG_OWN_REALTY)$", "assets"),
-    (r"^(DAYS_LAST_PHONE_CHANGE|DAYS_ID_PUBLISH|DAYS_REGISTRATION|FLAG_DOCUMENT_\d+|FLAG_PHONE|FLAG_MOBIL|FLAG_EMAIL|FLAG_CONT_MOBILE)$", "contacts"),
+    (r"^(DAYS_LAST_PHONE_CHANGE|DAYS_ID_PUBLISH|DAYS_REGISTRATION|FLAG_PHONE|FLAG_MOBIL|FLAG_EMAIL|FLAG_CONT_MOBILE)$", "contacts"),
     (r"^NAME_CONTRACT_TYPE$", "contract"),
 ]
 _COMPILED = [(re.compile(p), g) for p, g in RULES]
@@ -159,3 +175,28 @@ def group_breakdown(shap_values: np.ndarray, Xs: pd.DataFrame, group: str, top: 
             "spearman(value, SHAP)": corr,
         })
     return pd.DataFrame(rows).round(3).set_index("feature")
+
+
+def binned_effect(shap_values: np.ndarray, Xs: pd.DataFrame, feature: str, q: int = 5) -> pd.DataFrame:
+    """Средний вклад SHAP по квантилям значения признака (для категорий: по категориям).
+
+    Нужен там, где корреляция Спирмена неоднозначна (немонотонная зависимость):
+    сразу видно, при каких значениях признак повышает риск, а при каких снижает.
+    """
+    pos = list(Xs.columns).index(feature)
+    x = Xs[feature]
+    d = pd.DataFrame({"value": x.values, "shap": shap_values[:, pos]})
+
+    if not pd.api.types.is_numeric_dtype(x) or str(x.dtype) == "category":
+        t = d.groupby("value", observed=True, dropna=False)["shap"].agg(["mean", "count"])
+        return t.sort_values("mean", ascending=False).round(3)
+
+    d["bin"] = pd.qcut(d["value"], q=q, duplicates="drop")
+    t = d.groupby("bin", observed=True).agg(
+        value_mean=("value", "mean"), shap_mean=("shap", "mean"), n=("shap", "size")
+    )
+    t.index = t.index.astype(str)
+    missing = d[d["value"].isna()]
+    if len(missing):
+        t.loc["NaN"] = [np.nan, missing["shap"].mean(), len(missing)]
+    return t.round(3)
