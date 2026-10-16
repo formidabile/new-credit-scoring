@@ -117,3 +117,45 @@ def top_reasons(
         reasons = [(str(names[j]), float(values[i, j])) for j in idx[i] if values[i, j] > min_shap]
         out.append(reasons)
     return out
+
+
+def shap_sample(model, X: pd.DataFrame, y: pd.Series, n: int = 20_000, seed: int = 42):
+    """Выборка клиентов и вклады TreeSHAP (встроенные в LightGBM, лог-шансы).
+
+    Возвращает (Xs, ys, shap_values, base_value, proba). При тех же n и seed выборка всегда
+    одна и та же, поэтому результаты разных ноутбуков сопоставимы.
+    """
+    rng = np.random.default_rng(seed)
+    idx = rng.choice(len(X), size=min(n, len(X)), replace=False)
+    Xs = X.iloc[idx].reset_index(drop=True)
+    ys = y.iloc[idx].reset_index(drop=True)
+    contrib = model.booster_.predict(Xs, pred_contrib=True)
+    return Xs, ys, contrib[:, :-1], contrib[:, -1], model.predict_proba(Xs)[:, 1]
+
+
+def group_breakdown(shap_values: np.ndarray, Xs: pd.DataFrame, group: str, top: int = 10) -> pd.DataFrame:
+    """Что внутри группы: признаки, их доля вклада и направление эффекта.
+
+    spearman(value, SHAP) > 0: чем больше значение признака, тем выше риск; < 0: наоборот.
+    Для категориальных признаков направление не определено (NaN).
+    """
+    mapping = build_mapping(Xs.columns)
+    pos = {c: i for i, c in enumerate(Xs.columns)}
+    cols = [c for c in Xs.columns if mapping[c] == group]
+    mean_abs = pd.Series({c: np.abs(shap_values[:, pos[c]]).mean() for c in cols})
+
+    rows = []
+    for c in mean_abs.sort_values(ascending=False).head(top).index:
+        x = Xs[c]
+        corr = np.nan
+        if pd.api.types.is_numeric_dtype(x) and not str(x.dtype) == "category":
+            m = x.notna().values
+            if m.sum() > 10:
+                corr = pd.Series(x.values[m]).corr(pd.Series(shap_values[m, pos[c]]), method="spearman")
+        rows.append({
+            "feature": c,
+            "доля в группе, %": mean_abs[c] / mean_abs.sum() * 100,
+            "mean |SHAP|": mean_abs[c],
+            "spearman(value, SHAP)": corr,
+        })
+    return pd.DataFrame(rows).round(3).set_index("feature")
