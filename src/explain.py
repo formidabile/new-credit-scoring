@@ -19,6 +19,7 @@ GROUPS: dict[str, str] = {
     "bureau_recent": "Много недавно открытых кредитов в других банках",
     "bureau_active": "Большое число или сумма активных кредитов в других банках",
     "bureau_volume": "Небольшой общий объём кредитов в других банках",
+    "bureau_terms": "Сроки действующих кредитов в других банках",
     "bureau_other": "Особенности кредитной истории в других банках",
     "prev_refused": "Частые отказы по предыдущим заявкам",
     "prev_count": "Много заявок на кредит за короткое время",
@@ -33,8 +34,7 @@ GROUPS: dict[str, str] = {
     "enquiries": "Много запросов кредитной истории",
     "no_history": "Недостаточная кредитная история",
     "loan_burden": "Высокий платёж и сумма кредита относительно дохода",
-    "credit_vs_goods": "Сумма кредита велика относительно стоимости товара",
-    "credit_term": "Срок погашения запрашиваемого кредита",
+    "credit_params": "Параметры запрашиваемого кредита (срок, сумма относительно стоимости товара)",
     "employment": "Стаж и характер занятости",
     "education": "Уровень образования",
     "housing": "Характеристики жилья",
@@ -51,6 +51,9 @@ GROUPS: dict[str, str] = {
 
 EXCLUDED_GROUPS: set[str] = {"protected", "region", "social", "technical", "other"}
 
+# Минимальный вклад SHAP (лог-шансы), чтобы причину показывать клиенту: 0.1 примерно +10% к шансам дефолта
+MIN_REASON_SHAP: float = 0.10
+
 # Порядок важен: берётся первое совпадение.
 RULES: list[tuple[str, str]] = [
     # EMPLOYED_BIRTH_RATIO = стаж / возраст, поэтому несёт возраст
@@ -64,8 +67,9 @@ RULES: list[tuple[str, str]] = [
     (r"^BUREAU_.*DEBT", "bureau_debt"),
     # общие суммы кредитов действуют в обратную сторону, чем суммы активных: больше история, ниже риск
     (r"^BUREAU_AMT_CREDIT_SUM_(SUM|MEAN|MAX)$", "bureau_volume"),
+    (r"^BUREAU_DAYS_CREDIT_ENDDATE", "bureau_terms"),
     (r"^BUREAU_(LAST1Y_|DAYS_CREDIT_(MIN|MAX|MEAN)$)", "bureau_recent"),
-    (r"^BUREAU_(ACTIVE_|IS_ACTIVE|DAYS_CREDIT_ENDDATE|DAYS_CREDIT_UPDATE|CNT_CREDIT_PROLONG)", "bureau_active"),
+    (r"^BUREAU_(ACTIVE_|IS_ACTIVE|DAYS_CREDIT_UPDATE|CNT_CREDIT_PROLONG)", "bureau_active"),
     (r"^BUREAU_", "bureau_other"),
     (r"^PREV_.*REFUSED", "prev_refused"),
     (r"^PREV_(LAST1Y_COUNT|COUNT)$", "prev_count"),
@@ -79,8 +83,8 @@ RULES: list[tuple[str, str]] = [
     (r"^INST_", "inst_late"),
     (r"^AMT_REQ_CREDIT_BUREAU", "enquiries"),
     (r"^(CREDIT_INCOME_RATIO|ANNUITY_INCOME_RATIO|AMT_ANNUITY|AMT_CREDIT|AMT_INCOME_TOTAL)$", "loan_burden"),
-    (r"^(CREDIT_GOODS_RATIO|AMT_GOODS_PRICE)$", "credit_vs_goods"),
-    (r"^CREDIT_TERM$", "credit_term"),
+    # CREDIT_TERM и AMT_GOODS_PRICE действуют немонотонно, поэтому формулировка нейтральная
+    (r"^(CREDIT_GOODS_RATIO|AMT_GOODS_PRICE|CREDIT_TERM)$", "credit_params"),
     (r"^(DAYS_EMPLOYED|DAYS_EMPLOYED_ANOM|ORGANIZATION_TYPE|OCCUPATION_TYPE|NAME_INCOME_TYPE|FLAG_EMP_PHONE|FLAG_WORK_PHONE)$", "employment"),
     (r"^NAME_EDUCATION_TYPE$", "education"),
     (r"(_AVG|_MODE|_MEDI)$|^(NAME_HOUSING_TYPE|HOUSING_NAN_CNT)$", "housing"),

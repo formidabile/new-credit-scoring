@@ -98,17 +98,20 @@ def make_random_forest(X: pd.DataFrame, **overrides) -> Pipeline:
     return Pipeline([("pre", pre), ("clf", RandomForestClassifier(**params))])
 
 
-def cv_predict(make_model, X: pd.DataFrame, y: pd.Series, n_splits: int = 5):
+def cv_predict(make_model, X: pd.DataFrame, y: pd.Series, n_splits: int = 5, train_filter=None):
     """Кросс-валидация с OOF-предсказаниями и AUC по каждому фолду.
 
     make_model - функция без аргументов, возвращающая НОВУЮ необученную модель.
     Фолды те же, что в cv_auc (тот же random_state). Требует X и y с индексом 0..n-1.
     Внешний цикл последовательный: модели сами используют все ядра (n_jobs=-1).
+    train_filter(tr, y) -> индексы обучающей части (например, undersampling); валидация не меняется.
     """
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=RANDOM_STATE)
     oof = np.zeros(len(y))
     fold_auc = []
     for tr, va in skf.split(X, y):
+        if train_filter is not None:
+            tr = train_filter(tr, y)
         model = make_model()
         model.fit(X.iloc[tr], y.iloc[tr])
         p = model.predict_proba(X.iloc[va])[:, 1]
