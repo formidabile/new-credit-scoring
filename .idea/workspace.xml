@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1be5f083-f6a4-4baf-a268-ecf84178a892" name="Changes" comment="final holdout before bot" />
+    <list default="true" id="1be5f083-f6a4-4baf-a268-ecf84178a892" name="Changes" comment="model for bot" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -154,7 +154,23 @@
       <option name="project" value="LOCAL" />
       <updated>1792262565939</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="model for bot">
+      <option name="closed" value="true" />
+      <created>1792321917136</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1792321917136</updated>
+    </task>
+    <task id="LOCAL-00013" summary="model for bot">
+      <option name="closed" value="true" />
+      <created>1792321937642</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1792321937642</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -171,6 +187,7 @@
     <MESSAGE value="making the model explainable" />
     <MESSAGE value="calibrating probabilities" />
     <MESSAGE value="final holdout before bot" />
-    <option name="LAST_COMMIT_MESSAGE" value="final holdout before bot" />
+    <MESSAGE value="model for bot" />
+    <option name="LAST_COMMIT_MESSAGE" value="model for bot" />
   </component>
 </project>
