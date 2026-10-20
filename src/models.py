@@ -118,3 +118,17 @@ def cv_predict(make_model, X: pd.DataFrame, y: pd.Series, n_splits: int = 5, tra
         oof[va] = p
         fold_auc.append(roc_auc_score(y.iloc[va], p))
     return oof, np.array(fold_auc)
+
+
+def make_bot_model(columns: list[str], monotone: dict[str, int] | None = None):
+    """Небольшой LightGBM для бота.
+
+    monotone: {признак: +1 или -1}. +1: риск не убывает с ростом значения признака, -1: не возрастает.
+    Монотонные ограничения задают согласованное с бизнес-логикой поведение и нужны, чтобы отклик модели
+    на «что если» (рост суммы, просрочки и т.п.) не противоречил здравому смыслу.
+    """
+    params = dict(n_estimators=400, learning_rate=0.05, num_leaves=15, min_child_samples=100,
+                  colsample_bytree=0.8, subsample=0.8, reg_lambda=3.0)
+    if monotone:
+        params["monotone_constraints"] = [int(monotone.get(c, 0)) for c in columns]
+    return make_lgbm(**params)
