@@ -1,0 +1,58 @@
+{
+  "AMT_INCOME_TOTAL": {
+    "min": 45000.0,
+    "max": 630000.0
+  },
+  "AMT_CREDIT": {
+    "min": 62361.0,
+    "max": 2013840.0
+  },
+  "AMT_ANNUITY": {
+    "min": 5274.0,
+    "max": 79758.0
+  },
+  "AMT_GOODS_PRICE": {
+    "min": 54000.0,
+    "max": 1800000.0
+  },
+  "EMPLOYMENT_YEARS": {
+    "min": 0.266,
+    "max": 34.347
+  },
+  "OWN_CAR_AGE": {
+    "min": 0.0,
+    "max": 65.0
+  },
+  "CREDIT_INCOME_RATIO": {
+    "min": 0.485,
+    "max": 14.844
+  },
+  "ANNUITY_INCOME_RATIO": {
+    "min": 0.033,
+    "max": 0.552
+  },
+  "CREDIT_TERM": {
+    "min": 0.026,
+    "max": 0.119
+  },
+  "CREDIT_GOODS_RATIO": {
+    "min": 1.0,
+    "max": 1.528
+  },
+  "BUREAU_COUNT": {
+    "min": 0.0,
+    "max": 22.0
+  },
+  "BUREAU_IS_ACTIVE_SUM": {
+    "min": 0.0,
+    "max": 9.0
+  },
+  "BUREAU_AMT_CREDIT_SUM_DEBT_SUM": {
+    "min": 0.0,
+    "max": 8841678.628
+  },
+  "BUREAU_LAST1Y_COUNT": {
+    "min": 0.0,
+    "max": 7.0
+  }
+}

@@ -1,0 +1,14 @@
+# Зависимости для воспроизведения исследования (ноутбуки 01-15). Для запуска бота нужен только requirements-bot.txt.
+# Для воспроизводимости зафиксируйте версии из своего окружения (pip freeze).
+pandas
+numpy
+scipy
+scikit-learn
+lightgbm
+optuna
+shap
+joblib
+pyarrow
+matplotlib
+seaborn
+jupyter

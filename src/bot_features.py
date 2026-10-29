@@ -49,6 +49,16 @@ YES_NO = {"Y": "Да", "N": "Нет"}
 # в датасете заглушка DAYS_EMPLOYED = 365243 встречается только у этих типов занятости
 NO_EMPLOYMENT_TYPES = {"Pensioner", "Unemployed"}
 
+# типы занятости, которых в обучающих данных единицы и десятки клиентов: оценка для них ненадёжна.
+# Для безработного она к тому же берётся у пенсионеров через общую заглушку стажа.
+RARE_INCOME_TYPES = {"Unemployed", "Student", "Businessman", "Maternity leave"}
+
+
+def rare_income_message(income_type: str) -> str:
+    label = INCOME_TYPES.get(income_type, income_type)
+    return (f"Тип занятости «{label}» встречается в обучающих данных слишком редко (единицы или десятки клиентов "
+            "из 300 тысяч), поэтому оценка была бы ненадёжной. Для этого типа занятости бот оценку не даёт.")
+
 
 def _positive(x, name: str) -> float:
     x = float(x)

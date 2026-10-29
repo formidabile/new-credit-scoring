@@ -1,0 +1,23 @@
+{
+  "variant": "V4: V3 + монотонность по числу кредитов",
+  "cost_ratio": 5,
+  "threshold": 0.1667,
+  "min_reason_shap": 0.1,
+  "calibrated": false,
+  "model": "models/lgbm_bot.joblib",
+  "features": "models/features_bot.json",
+  "input_ranges": "models/bot_input_ranges.json",
+  "monotone_constraints": {
+    "CREDIT_INCOME_RATIO": 1,
+    "ANNUITY_INCOME_RATIO": 1,
+    "BUREAU_HAS_OVERDUE_SUM": 1,
+    "BUREAU_IS_ACTIVE_SUM": 1,
+    "BUREAU_AMT_CREDIT_SUM_DEBT_SUM": 1,
+    "BUREAU_LAST1Y_COUNT": 1,
+    "DAYS_EMPLOYED": 1,
+    "AMT_INCOME_TOTAL": -1,
+    "BUREAU_COUNT": -1
+  },
+  "cv_auc_dev": 0.7112,
+  "auc_holdout": 0.7178
+}
